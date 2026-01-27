@@ -1,6 +1,6 @@
 # Exhaustive Tactical Indexing Report
 
-*Generated on: 2026-01-27T16:21:21.412Z*
+*Generated on: 2026-01-27T17:32:10.870Z*
 
 ## 1. Summary Metrics
 
@@ -113,3 +113,10 @@
 | The game now seen Final (1).txt | 53.23 | Unstructured |
 | The game now seen Final.txt | 53.23 | Unstructured |
 | notebooklm_extraction.md | 9.74 | 3 |
+
+## 5. Database Artifacts
+
+| Filename | Purpose |
+|----------|---------|
+| database/schema.sql | D1 Database Schema definitions |
+| database/seed.sql | Generated D1 Seed data from tactical nodes |
