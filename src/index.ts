@@ -17,10 +17,11 @@ export default {
         
         // Try to count records in each table
         const tableCounts: Record<string, number> = {};
-        for (const table of tables.results || []) {
+        const results = (tables.results || []) as Array<{ name: string }>;
+        for (const table of results) {
           try {
             const count = await env.DB.prepare(`SELECT COUNT(*) as count FROM ${table.name}`).first();
-            tableCounts[table.name] = count?.count || 0;
+            tableCounts[table.name] = (count?.count as number) || 0;
           } catch (e) {
             tableCounts[table.name] = -1; // Error accessing table
           }

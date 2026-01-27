@@ -288,7 +288,7 @@ export const INDEXING_CONTENTS: ForensicNode[] = [
 
   {
     id: 'content-016',
-    type: NodeType.TACTIC',
+    type: NodeType.TACTIC,
     title: 'INFORMATION DOMINANCE STRATEGIES',
     themes: ['Information Dominance', 'Strategic Control', 'Narrative Shaping'],
     excerpt: 'Comprehensive approaches to controlling the information environment to achieve strategic objectives.',
