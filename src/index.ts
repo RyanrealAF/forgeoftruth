@@ -3,7 +3,15 @@
 
 export interface Env {
   DB: D1Database;
+  ADMIN_SECRET: string;
 }
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Content-Type": "application/json",
+};
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -42,6 +50,40 @@ export default {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
         });
+      }
+    }
+
+    // Codex Import endpoint
+    if (url.pathname === "/codex/import" && request.method === "POST") {
+      const auth = request.headers.get("Authorization");
+      if (auth !== `Bearer ${env.ADMIN_SECRET}`) return new Response("Unauthorized", { status: 401 });
+
+      try {
+        const payload = await request.json(); // Expects { concepts: [...], relations: [...] }
+        const { concepts, relations } = payload as any;
+
+        const batch = [
+          ...concepts.map((c: any) =>
+            env.DB.prepare("INSERT OR IGNORE INTO concepts (term, definition, category) VALUES (?, ?, ?)")
+            .bind(c.term, c.definition, c.category)
+          ),
+          ...relations.map((r: any) =>
+            env.DB.prepare("INSERT OR IGNORE INTO concept_relationships (source_term, target_term, relationship_type, rationale) VALUES (?, ?, ?, ?)")
+            .bind(r.source, r.target, r.type, r.rationale)
+          )
+        ];
+
+        // Execute as a single high-speed transaction
+        const results = await env.DB.batch(batch);
+
+        return new Response(JSON.stringify({
+          status: "Import Complete",
+          rows_processed: results.length,
+          jules_note: "Intelligence integrated into the Codex."
+        }), { headers: CORS_HEADERS });
+
+      } catch (e: any) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: CORS_HEADERS });
       }
     }
 
@@ -94,6 +136,31 @@ export default {
           )
         `).run();
 
+        // Create concepts table
+        await env.DB.prepare(`
+          CREATE TABLE IF NOT EXISTS concepts (
+            term TEXT PRIMARY KEY,
+            definition TEXT NOT NULL,
+            category TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+          )
+        `).run();
+
+        // Create concept_relationships table
+        await env.DB.prepare(`
+          CREATE TABLE IF NOT EXISTS concept_relationships (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            source_term TEXT NOT NULL,
+            target_term TEXT NOT NULL,
+            relationship_type TEXT NOT NULL,
+            rationale TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (source_term) REFERENCES concepts(term) ON DELETE CASCADE,
+            FOREIGN KEY (target_term) REFERENCES concepts(term) ON DELETE CASCADE
+          )
+        `).run();
+
         // Create indexes
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_module_sequence ON modules(sequence)').run();
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_module_phase ON modules(phase)').run();
@@ -102,6 +169,9 @@ export default {
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_lesson_concept ON lessons(tactical_concept)').run();
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_reference_lesson ON tactical_references(lesson_id)').run();
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_reference_type ON tactical_references(reference_type)').run();
+        await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_concept_category ON concepts(category)').run();
+        await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_relationship_source ON concept_relationships(source_term)').run();
+        await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_relationship_target ON concept_relationships(target_term)').run();
 
         return new Response(JSON.stringify({
           status: 'success',

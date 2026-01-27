@@ -66,3 +66,29 @@ CREATE TABLE IF NOT EXISTS tactical_references (
 -- Create index for reference lookups
 CREATE INDEX IF NOT EXISTS idx_reference_lesson ON tactical_references(lesson_id);
 CREATE INDEX IF NOT EXISTS idx_reference_type ON tactical_references(reference_type);
+
+-- Create table for core tactical concepts (Codex)
+CREATE TABLE IF NOT EXISTS concepts (
+  term TEXT PRIMARY KEY,
+  definition TEXT NOT NULL,
+  category TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create table for relationships between concepts
+CREATE TABLE IF NOT EXISTS concept_relationships (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  source_term TEXT NOT NULL,
+  target_term TEXT NOT NULL,
+  relationship_type TEXT NOT NULL,
+  rationale TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (source_term) REFERENCES concepts(term) ON DELETE CASCADE,
+  FOREIGN KEY (target_term) REFERENCES concepts(term) ON DELETE CASCADE
+);
+
+-- Create indexes for concept lookups
+CREATE INDEX IF NOT EXISTS idx_concept_category ON concepts(category);
+CREATE INDEX IF NOT EXISTS idx_relationship_source ON concept_relationships(source_term);
+CREATE INDEX IF NOT EXISTS idx_relationship_target ON concept_relationships(target_term);
