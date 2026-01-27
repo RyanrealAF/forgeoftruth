@@ -9,12 +9,17 @@
     "build": "tsc",
     "start": "npm run dev"
   },
-  "keywords": ["cloudflare", "workers", "d1", "tactical"],
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "d1",
+    "tactical"
+  ],
   "author": "buildwhilebleeding",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.0.0",
     "@cloudflare/workers-types": "^4.0.0",
-    "wrangler": "^3.0.0"
+    "typescript": "^5.0.0",
+    "wrangler": "^4.61.0"
   }
 }
