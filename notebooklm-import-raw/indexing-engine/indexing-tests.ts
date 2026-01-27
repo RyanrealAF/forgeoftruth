@@ -1,6 +1,6 @@
 import { ForensicNode, NodeType } from '../types';
 import { IndexingOrchestrator } from './indexing-orchestrator';
-import { TemporalIndexer } from './temporal-indexer';
+import { TemporalIndexer, TemporalEvent } from './temporal-indexer';
 import { EntityResolver } from './entity-resolver';
 import { SemanticAnalyzer } from './semantic-analyzer';
 
@@ -220,7 +220,7 @@ export class IndexingTests {
           duration: -1,
           memoryUsage: -1,
           throughput: 0,
-          error: error.toString()
+          error: (error as any).toString()
         });
       }
     }
@@ -276,8 +276,8 @@ export class IndexingTests {
   }
 
   private static validateDateParsing(index: any): ValidationResult {
-    const allEventsHaveDates = Array.from(index.nodeTimeline.values())
-      .flat()
+    const allEventsHaveDates = (Array.from(index.nodeTimeline.values())
+      .flat() as TemporalEvent[])
       .every(event => event.timestamp && new Date(event.timestamp) instanceof Date);
     
     return {
