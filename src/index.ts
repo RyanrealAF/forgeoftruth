@@ -87,6 +87,20 @@ export default {
       }
     }
 
+    // Codex Stats endpoint
+    if (url.pathname === "/codex/stats") {
+      try {
+        const stats = await env.DB.prepare(`
+          SELECT
+            (SELECT COUNT(*) FROM concepts) as total_concepts,
+            (SELECT COUNT(*) FROM concept_relationships) as total_links
+        `).first();
+        return new Response(JSON.stringify(stats), { headers: CORS_HEADERS });
+      } catch (e: any) {
+        return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: CORS_HEADERS });
+      }
+    }
+
     // Initialize database schema
     if (url.pathname === '/init-db') {
       try {

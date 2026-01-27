@@ -2,6 +2,8 @@
 import { VAULT_NODES } from './data/archive';
 import { INDEXING_CONTENTS } from './data/indexing-contents';
 import { NodeType } from './types';
+import { EntityResolver } from './indexing-engine/entity-resolver';
+import { SemanticAnalyzer } from './indexing-engine/semantic-analyzer';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -10,11 +12,11 @@ function escapeSql(str: string): string {
   return str.replace(/'/g, "''");
 }
 
-function main() {
-  console.log('🚀 Generating D1 Seed SQL...');
+async function main() {
+  console.log('🚀 Generating D1 Seed SQL (Kinetic Codex Edition)...');
 
   let sql = '-- D1 Seed Data for Tactical Index\n';
-  sql += '-- Generated from Forensic Nodes\n\n';
+  sql += '-- Generated from Forensic Nodes and Semantic Analysis\n\n';
 
   // 1. Modules
   sql += 'INSERT INTO modules (id, sequence, title, phase, focus) VALUES \n';
@@ -27,7 +29,7 @@ function main() {
   // 2. Lessons
   sql += 'INSERT INTO lessons (id, module_id, sequence, title, tactical_concept, historical_validator, content_json, difficulty_level, estimated_duration_minutes) VALUES \n';
 
-  const values: string[] = [];
+  const lessonValues: string[] = [];
   allNodes.forEach((node, index) => {
     let moduleId = 'mod-reflection';
     if (node.type === NodeType.DOCTRINE) moduleId = 'mod-doctrine';
@@ -46,12 +48,34 @@ function main() {
     const difficulty = node.metadata.tier || 1;
     const duration = 30 + (difficulty * 15);
 
-    values.push(`('${node.id}', '${moduleId}', ${sequence}, '${title}', '${tactical_concept}', '${historical_validator}', '${content_json}', ${difficulty}, ${duration})`);
+    lessonValues.push(`('${node.id}', '${moduleId}', ${sequence}, '${title}', '${tactical_concept}', '${historical_validator}', '${content_json}', ${difficulty}, ${duration})`);
   });
 
-  sql += values.join(',\n') + ';\n\n';
+  sql += lessonValues.join(',\n') + ';\n\n';
 
-  // 3. Tactical References
+  // 3. Concepts (Extracted via EntityResolver)
+  console.log('🔍 Extracting concepts...');
+  const entityResolution = EntityResolver.resolveEntities(allNodes);
+  if (entityResolution.entities.length > 0) {
+    sql += 'INSERT OR IGNORE INTO concepts (term, definition, category) VALUES \n';
+    const conceptValues = entityResolution.entities.map(entity => {
+      return `('${escapeSql(entity.primaryName)}', '${escapeSql(entity.primaryName)}', '${escapeSql(entity.entityType)}')`;
+    });
+    sql += conceptValues.join(',\n') + ';\n\n';
+  }
+
+  // 4. Concept Relationships (Extracted via SemanticAnalyzer)
+  console.log('🧠 Analyzing relationships...');
+  const semanticAnalysis = SemanticAnalyzer.analyzeSemantics(allNodes);
+  if (semanticAnalysis.crossDomainKnowledge.length > 0) {
+    sql += 'INSERT OR IGNORE INTO concept_relationships (source_term, target_term, relationship_type, rationale) VALUES \n';
+    const relationValues = semanticAnalysis.crossDomainKnowledge.map(link => {
+      return `('${escapeSql(link.fromDomain)}', '${escapeSql(link.toDomain)}', '${escapeSql(link.connectionType)}', '${escapeSql(link.explanation)}')`;
+    });
+    sql += relationValues.join(',\n') + ';\n\n';
+  }
+
+  // 5. Tactical References
   sql += 'INSERT INTO tactical_references (id, lesson_id, reference_type, title, description) VALUES \n';
   const refValues: string[] = [];
   allNodes.forEach(node => {
@@ -67,9 +91,9 @@ function main() {
 
   sql += refValues.join(',\n') + ';\n';
 
-  const outputPath = path.join(__dirname, '..', 'database', 'seed.sql');
+  const outputPath = path.join(__dirname, '..', 'seed_kinetic_codex.sql');
   fs.writeFileSync(outputPath, sql);
   console.log(`✅ D1 Seed generated at ${outputPath}`);
 }
 
-main();
+main().catch(console.error);
