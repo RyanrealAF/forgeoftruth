@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+.pnpm-store/
+
+# Environment variables
+.env
+.env.local
+.dev.vars
+
+# Build outputs
+dist/
+build/
+.output/
+.wrangler/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+logs/
