@@ -5,6 +5,9 @@ import { SemanticAnalyzer, SemanticAnalysis } from './semantic-analyzer';
 import { processIndexingStructure } from './processor';
 import { auditIndexingStructure } from './audit';
 import { LedgerHealer } from './healer';
+import { ValidationFramework } from './validation-framework';
+import { MonitoringDashboard } from './monitoring-dashboard';
+import { IndexingTests } from './indexing-tests';
 
 export interface EnhancedIndexingResult {
   // Original structure
@@ -24,6 +27,12 @@ export interface EnhancedIndexingResult {
   
   // Integration metrics
   integrationMetrics: IntegrationMetrics;
+  
+  // Quality validation results
+  validationResults: ValidationResults;
+  
+  // Monitoring dashboard
+  monitoringDashboard: MonitoringDashboard;
 }
 
 export interface EnhancedDiagnostics {
@@ -38,7 +47,7 @@ export interface EnhancedDiagnostics {
 
 export interface IndexingIssue {
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  category: 'TEMPORAL' | 'ENTITY' | 'SEMANTIC' | 'STRUCTURAL';
+  category: 'TEMPORAL' | 'ENTITY' | 'SEMANTIC' | 'STRUCTURAL' | 'QUALITY';
   description: string;
   affectedNodes: string[];
   suggestedFix: string;
@@ -52,6 +61,187 @@ export interface IntegrationMetrics {
   crossReferenceQuality: number;
   patternDetectionAccuracy: number;
   anomalyDetectionSensitivity: number;
+}
+
+export interface ValidationResults {
+  overallScore: number;
+  confidence: number;
+  validationLayers: {
+    accuracy: ValidationLayerResult;
+    completeness: ValidationLayerResult;
+    consistency: ValidationLayerResult;
+    relevance: ValidationLayerResult;
+    structure: ValidationLayerResult;
+  };
+  recommendations: QualityRecommendation[];
+  trends: QualityTrend[];
+  benchmarks: QualityBenchmark[];
+  comparisons: QualityComparison[];
+}
+
+export interface MonitoringDashboard {
+  summary: DashboardSummary;
+  metrics: AggregateMetrics;
+  trends: TrendAnalysis;
+  benchmarks: BenchmarkAnalysis;
+  insights: QualityInsight[];
+  recommendations: QualityRecommendation[];
+  detailedResults: ValidationResult[];
+  enhancedAnalysis: {
+    temporalIntegrity: any;
+    entityResolution: any;
+    semanticCoherence: any;
+  };
+  timestamp: string;
+}
+
+export interface QualityRecommendation {
+  priority: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  description: string;
+  action: string;
+  confidence: number;
+}
+
+export interface QualityTrend {
+  trend: 'IMPROVING' | 'DECLINING' | 'STABLE';
+  scoreChange: number;
+  timePeriod: string;
+  confidence: number;
+}
+
+export interface QualityBenchmark {
+  name: string;
+  description: string;
+  targetScore: number;
+  category: string;
+}
+
+export interface QualityComparison {
+  benchmarkName: string;
+  currentScore: number;
+  targetScore: number;
+  gap: number;
+  status: 'MEETS' | 'NEAR' | 'FAR';
+}
+
+export interface ValidationLayerResult {
+  layer: string;
+  score: number;
+  confidence: number;
+  issues: QualityIssue[];
+  suggestions: QualitySuggestion[];
+  passed: boolean;
+}
+
+export interface QualityIssue {
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  category: string;
+  description: string;
+  location?: string;
+  evidence: string[];
+}
+
+export interface QualitySuggestion {
+  type: 'CORRECTION' | 'ENHANCEMENT' | 'RESTRUCTURING';
+  description: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  action: string;
+}
+
+export interface DashboardSummary {
+  totalNodes: number;
+  averageScore: number;
+  complianceRate: number;
+  criticalIssues: number;
+  lastUpdated: string;
+}
+
+export interface AggregateMetrics {
+  totalNodes: number;
+  passedNodes: number;
+  failedNodes: number;
+  averageScore: number;
+  complianceRate: number;
+  criticalIssues: number;
+  highIssues: number;
+  scoreDistribution: {
+    excellent: number;
+    good: number;
+    fair: number;
+    poor: number;
+  };
+  contentTypes: Array<{
+    type: string;
+    count: number;
+    averageScore: number;
+  }>;
+  qualityHealth: number;
+}
+
+export interface TrendAnalysis {
+  overallTrend: 'IMPROVING' | 'DECLINING' | 'STABLE';
+  contentTrends: QualityTrend[];
+  riskIndicators: RiskIndicator[];
+  improvementOpportunities: ImprovementOpportunity[];
+}
+
+export interface BenchmarkAnalysis {
+  benchmarks: QualityBenchmark[];
+  comparisons: QualityComparison[];
+  complianceSummary: ComplianceSummary;
+  performanceGaps: PerformanceGap[];
+}
+
+export interface QualityInsight {
+  type: 'COMPLIANCE' | 'CRITICAL_ISSUES' | 'TREND' | 'CONTENT_TYPE';
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  title: string;
+  description: string;
+  impact: string;
+  recommendation: string;
+}
+
+export interface ValidationResult {
+  nodeId: string;
+  title: string;
+  contentType: string;
+  score: number;
+  confidence: number;
+  passed: boolean;
+  issues: QualityIssue[];
+  recommendations: QualityRecommendation[];
+  timestamp: string;
+}
+
+export interface RiskIndicator {
+  type: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH';
+  description: string;
+  confidence: number;
+}
+
+export interface ImprovementOpportunity {
+  category: string;
+  description: string;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  estimatedImpact: string;
+}
+
+export interface ComplianceSummary {
+  totalBenchmarks: number;
+  metBenchmarks: number;
+  nearBenchmarks: number;
+  farBenchmarks: number;
+  complianceRate: number;
+  status: 'EXCELLENT' | 'GOOD' | 'POOR';
+}
+
+export interface PerformanceGap {
+  benchmarkName: string;
+  currentScore: number;
+  targetScore: number;
+  gap: number;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }
 
 /**
@@ -100,12 +290,21 @@ export class IndexingOrchestrator {
       semanticAnalysis
     );
 
-    // Step 7: Healing and optimization
+    // Step 7: Quality validation
+    console.log('✅ Performing quality validation...');
+    const validationResults = await this.performQualityValidation(nodes);
+
+    // Step 8: Monitoring dashboard
+    console.log('📊 Generating monitoring dashboard...');
+    const monitoringDashboard = await MonitoringDashboard.generateDashboard(nodes);
+
+    // Step 9: Healing and optimization
     console.log('🔧 Healing and optimizing...');
     const healedResult = await this.optimizeIndex(
       originalResult.links, 
       enhancedDiagnostics, 
-      integrationMetrics
+      integrationMetrics,
+      validationResults
     );
 
     const result: EnhancedIndexingResult = {
@@ -114,11 +313,78 @@ export class IndexingOrchestrator {
       entityResolution: entityResolution,
       semanticAnalysis: semanticAnalysis,
       enhancedDiagnostics: enhancedDiagnostics,
-      integrationMetrics: integrationMetrics
+      integrationMetrics: integrationMetrics,
+      validationResults: validationResults,
+      monitoringDashboard: monitoringDashboard
     };
 
     console.log('✅ Enhanced Indexing Pipeline Complete!');
     return result;
+  }
+
+  /**
+   * Performs comprehensive quality validation
+   */
+  private static async performQualityValidation(nodes: ForensicNode[]): Promise<ValidationResults> {
+    const validationResults = await Promise.all(
+      nodes.map(node => ValidationFramework.validateContent(node))
+    );
+
+    const overallScore = validationResults.reduce((sum, result) => sum + result.overallScore, 0) / validationResults.length;
+    const confidence = validationResults.reduce((sum, result) => sum + result.confidence, 0) / validationResults.length;
+
+    // Aggregate validation layers
+    const validationLayers = {
+      accuracy: this.aggregateLayerResults(validationResults, 'accuracy'),
+      completeness: this.aggregateLayerResults(validationResults, 'completeness'),
+      consistency: this.aggregateLayerResults(validationResults, 'consistency'),
+      relevance: this.aggregateLayerResults(validationResults, 'relevance'),
+      structure: this.aggregateLayerResults(validationResults, 'structure')
+    };
+
+    // Aggregate recommendations
+    const recommendations = validationResults.flatMap(result => result.recommendations);
+
+    // Aggregate trends
+    const trends = validationResults.flatMap(result => result.trends);
+
+    // Aggregate benchmarks
+    const benchmarks = validationResults.flatMap(result => result.benchmarks);
+
+    // Aggregate comparisons
+    const comparisons = validationResults.flatMap(result => result.comparisons);
+
+    return {
+      overallScore,
+      confidence,
+      validationLayers,
+      recommendations,
+      trends,
+      benchmarks,
+      comparisons
+    };
+  }
+
+  /**
+   * Aggregates validation layer results
+   */
+  private static aggregateLayerResults(validationResults: any[], layerName: string): ValidationLayerResult {
+    const layerResults = validationResults.map(result => result.validationLayers[layerName]);
+    
+    const score = layerResults.reduce((sum, result) => sum + result.score, 0) / layerResults.length;
+    const confidence = layerResults.reduce((sum, result) => sum + result.confidence, 0) / layerResults.length;
+    const issues = layerResults.flatMap(result => result.issues);
+    const suggestions = layerResults.flatMap(result => result.suggestions);
+    const passed = score >= 0.7;
+
+    return {
+      layer: layerName.toUpperCase(),
+      score,
+      confidence,
+      issues,
+      suggestions,
+      passed
+    };
   }
 
   /**
@@ -295,6 +561,18 @@ export class IndexingOrchestrator {
       });
     }
 
+    // Quality issues
+    if (orphanCount > nodes.length * 0.2) {
+      issues.push({
+        severity: 'CRITICAL',
+        category: 'QUALITY',
+        description: 'Severe content quality issues detected',
+        affectedNodes: nodes.map(n => n.id),
+        suggestedFix: 'Implement comprehensive quality improvement measures',
+        confidence: 0.9
+      });
+    }
+
     return issues;
   }
 
@@ -346,13 +624,14 @@ export class IndexingOrchestrator {
   private static async optimizeIndex(
     links: GraphLink[],
     diagnostics: EnhancedDiagnostics,
-    metrics: IntegrationMetrics
+    metrics: IntegrationMetrics,
+    validationResults: ValidationResults
   ): Promise<{links: GraphLink[]}> {
     
     let optimizedLinks = [...links];
     
     // Apply optimizations based on diagnostics
-    if (diagnostics.overallHealth < 0.7) {
+    if (diagnostics.overallHealth < 0.7 || validationResults.overallScore < 0.7) {
       console.log('🔧 Applying index optimizations...');
       
       // Heal broken links
@@ -480,5 +759,12 @@ export class IndexingOrchestrator {
     
     // Sensitivity based on anomaly detection rate
     return Math.min(1.0, anomalies / totalEvents);
+  }
+
+  /**
+   * Runs comprehensive test suite
+   */
+  static async runTestSuite(): Promise<any> {
+    return await IndexingTests.runAllTests();
   }
 }
