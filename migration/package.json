@@ -1,0 +1,23 @@
+{
+  "name": "curriculum-migration",
+  "version": "1.0.0",
+  "description": "Migration scripts for curriculum and NotebookLM content",
+  "main": "migrate-curriculum.js",
+  "scripts": {
+    "migrate": "node migrate-curriculum.js",
+    "validate": "node validate-migration.js",
+    "test": "node test-migration.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "fs": "^0.0.1-security"
+  },
+  "keywords": [
+    "migration",
+    "curriculum",
+    "notebooklm",
+    "d1"
+  ],
+  "author": "buildwhilebleeding",
+  "license": "MIT"
+}

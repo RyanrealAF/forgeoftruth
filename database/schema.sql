@@ -66,3 +66,18 @@ CREATE TABLE IF NOT EXISTS tactical_references (
 -- Create index for reference lookups
 CREATE INDEX IF NOT EXISTS idx_reference_lesson ON tactical_references(lesson_id);
 CREATE INDEX IF NOT EXISTS idx_reference_type ON tactical_references(reference_type);
+
+-- Create table for lesson content storage
+CREATE TABLE IF NOT EXISTS lesson_content (
+  id TEXT PRIMARY KEY,
+  lesson_id TEXT NOT NULL,
+  content_type TEXT NOT NULL DEFAULT 'markdown',
+  content_text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
+);
+
+-- Create index for lesson content lookups
+CREATE INDEX IF NOT EXISTS idx_lesson_content_lesson ON lesson_content(lesson_id);
+CREATE INDEX IF NOT EXISTS idx_lesson_content_type ON lesson_content(content_type);

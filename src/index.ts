@@ -178,6 +178,48 @@ export default {
       }
     }
 
+    // Insert lesson content endpoint
+    if (url.pathname === '/insert-lesson-content') {
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+          status: 405,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const contentData = await request.json();
+        
+        await env.DB.prepare(`
+          INSERT INTO lesson_content (id, lesson_id, content_type, content_text, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(
+          contentData.id,
+          contentData.lesson_id,
+          contentData.content_type,
+          contentData.content_text,
+          contentData.created_at,
+          contentData.updated_at
+        ).run();
+
+        return new Response(JSON.stringify({
+          status: 'success',
+          message: 'Lesson content inserted successfully',
+          id: contentData.id
+        }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({
+          status: 'error',
+          message: (error as Error).message
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     // Initialize database schema
     if (url.pathname === '/init-db') {
       try {
@@ -227,6 +269,19 @@ export default {
           )
         `).run();
 
+        // Create lesson content table
+        await env.DB.prepare(`
+          CREATE TABLE IF NOT EXISTS lesson_content (
+            id TEXT PRIMARY KEY,
+            lesson_id TEXT NOT NULL,
+            content_type TEXT NOT NULL DEFAULT 'markdown',
+            content_text TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
+          )
+        `).run();
+
         // Create indexes
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_module_sequence ON modules(sequence)').run();
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_module_phase ON modules(phase)').run();
@@ -235,6 +290,8 @@ export default {
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_lesson_concept ON lessons(tactical_concept)').run();
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_reference_lesson ON tactical_references(lesson_id)').run();
         await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_reference_type ON tactical_references(reference_type)').run();
+        await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_lesson_content_lesson ON lesson_content(lesson_id)').run();
+        await env.DB.prepare('CREATE INDEX IF NOT EXISTS idx_lesson_content_type ON lesson_content(content_type)').run();
 
         return new Response(JSON.stringify({
           status: 'success',
