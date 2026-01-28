@@ -6,3 +6,8 @@ compatibility_date = "2024-01-26"
 binding = "DB"
 database_name = "tactical-curriculum-db"
 database_id = "25f74a5f-6030-41a9-ae14-061a2e594e13"
+
+[[d1_databases]]
+binding = "GRANULAR_DB"
+database_name = "tactical-granular-db"
+database_id = "f0504a5f-6030-41a9-ae14-061a2e594e14" # Placeholder ID for sibling database

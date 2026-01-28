@@ -3,6 +3,7 @@
 
 export interface Env {
   DB: D1Database;
+  GRANULAR_DB: D1Database;
 }
 
 export default {
@@ -27,10 +28,28 @@ export default {
           }
         }
 
+        // Check sibling database
+        const siblingTables = await env.GRANULAR_DB.prepare('SELECT name FROM sqlite_master WHERE type="table"').all();
+        const siblingTableCounts: Record<string, number> = {};
+        const siblingResults = (siblingTables.results || []) as Array<{ name: string }>;
+        for (const table of siblingResults) {
+          try {
+            const count = await env.GRANULAR_DB.prepare(`SELECT COUNT(*) as count FROM ${table.name}`).first();
+            siblingTableCounts[table.name] = (count?.count as number) || 0;
+          } catch (e) {
+            siblingTableCounts[table.name] = -1;
+          }
+        }
+
         return new Response(JSON.stringify({
           status: 'connected',
-          tables: tableCounts,
-          message: 'Database connection successful'
+          primary: {
+            tables: tableCounts
+          },
+          sibling: {
+            tables: siblingTableCounts
+          },
+          message: 'Multi-database connection successful'
         }), {
           headers: { 'Content-Type': 'application/json' }
         });
@@ -130,6 +149,24 @@ export default {
       }), {
         headers: { 'Content-Type': 'application/json' }
       })
+    }
+
+    // Granular storage route: POST /api/v1/granular/event
+    if (url.pathname === '/api/v1/granular/event' && request.method === 'POST') {
+      try {
+        const body = await request.json() as any;
+        const id = crypto.randomUUID();
+        await env.GRANULAR_DB.prepare(`
+          INSERT INTO forensic_events (id, event_type, node_id, actor_role, raw_data, signal_strength)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(id, body.type, body.nodeId, body.role, JSON.stringify(body.data), body.strength).run();
+
+        return new Response(JSON.stringify({ success: true, id }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: (e as Error).message }), { status: 500 });
+      }
     }
 
     // API Routes
