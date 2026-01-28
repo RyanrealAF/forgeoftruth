@@ -12,5 +12,5 @@ binding = "D1"
 database_name = "tactical-curriculum-db"
 database_id = "25f74a5f-6030-41a9-ae14-061a2e594e13"
 
-[[ ai ]]
+[ai]
 binding = "AI"

@@ -49,10 +49,10 @@ class QueryTester:
             print(f"\n📊 Top {len(results)} Results:\n")
             for i, result in enumerate(results, 1):
                 score = result.get("score", 0)
-                lesson = result.get("lesson", {})
-                metadata = result.get("metadata", {})
+                lesson = result.get("lesson") or {}
+                metadata = result.get("metadata") or {}
 
-                print(f"{i}. [{lesson.get('lesson_number', '?'):3d}] {lesson.get('title', 'Unknown')}")
+                print(f"{i}. [{lesson.get('sequence', '?'):3d}] {lesson.get('title', 'Unknown')}")
                 print(f"   Score: {score:.4f}")
                 print(f"   Concept: {metadata.get('concept', 'N/A')}")
                 print(f"   Phase: {metadata.get('phase', 'N/A')}")

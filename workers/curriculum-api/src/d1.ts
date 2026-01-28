@@ -7,15 +7,15 @@ export async function getLessonById(
   try {
     const result = await db.prepare(`
       SELECT
-        l.lesson_id,
-        l.lesson_number,
+        l.id,
+        l.sequence,
         l.title,
-        l.tactical_application,
+        l.tactical_concept,
         l.module_id,
-        m.phase_name
+        m.phase
       FROM lessons l
       JOIN modules m ON l.module_id = m.module_id
-      WHERE l.lesson_number = ?
+      WHERE l.sequence = ?
     `).bind(lessonNumber).first<Lesson>();
 
     return result || null;

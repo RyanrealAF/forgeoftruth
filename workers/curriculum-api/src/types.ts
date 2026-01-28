@@ -19,12 +19,12 @@ export interface EnrichedResult {
 }
 
 export interface Lesson {
-  lesson_id: number;
-  lesson_number: number;
+  id: string;
+  sequence: number;
   title: string;
-  tactical_application: string;
-  module_id: number;
-  phase_name: string;
+  tactical_concept: string;
+  module_id: string;
+  phase: string;
 }
 
 export interface Relationship {

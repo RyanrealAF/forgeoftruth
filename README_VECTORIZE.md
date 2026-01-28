@@ -39,7 +39,7 @@
 
 1. **Set Environment**:
    ```bash
-   export CLOUDFLARE_ACCOUNT_ID="your_account_id"
+   export CLOUDFLARE_ACCOUNT_ID="95f23a03d74166011160da107f74c055"
    export CLOUDFLARE_API_TOKEN="your_api_token"
    ```
 
