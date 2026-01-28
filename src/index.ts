@@ -44,6 +44,140 @@ export default {
       }
     }
 
+    // Insert module endpoint
+    if (url.pathname === '/insert-module') {
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+          status: 405,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const moduleData = await request.json();
+        
+        await env.DB.prepare(`
+          INSERT INTO modules (id, sequence, title, phase, focus, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          moduleData.id,
+          moduleData.sequence,
+          moduleData.title,
+          moduleData.phase,
+          moduleData.focus,
+          moduleData.created_at,
+          moduleData.updated_at
+        ).run();
+
+        return new Response(JSON.stringify({
+          status: 'success',
+          message: 'Module inserted successfully',
+          id: moduleData.id
+        }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({
+          status: 'error',
+          message: (error as Error).message
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Insert lesson endpoint
+    if (url.pathname === '/insert-lesson') {
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+          status: 405,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const lessonData = await request.json();
+        
+        await env.DB.prepare(`
+          INSERT INTO lessons (id, module_id, sequence, title, tactical_concept, historical_validator, content_json, difficulty_level, estimated_duration_minutes, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          lessonData.id,
+          lessonData.module_id,
+          lessonData.sequence,
+          lessonData.title,
+          lessonData.tactical_concept,
+          lessonData.historical_validator,
+          lessonData.content_json,
+          lessonData.difficulty_level,
+          lessonData.estimated_duration_minutes,
+          lessonData.created_at,
+          lessonData.updated_at
+        ).run();
+
+        return new Response(JSON.stringify({
+          status: 'success',
+          message: 'Lesson inserted successfully',
+          id: lessonData.id
+        }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({
+          status: 'error',
+          message: (error as Error).message
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
+    // Insert reference endpoint
+    if (url.pathname === '/insert-reference') {
+      if (request.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+          status: 405,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      try {
+        const referenceData = await request.json();
+        
+        await env.DB.prepare(`
+          INSERT INTO tactical_references (id, lesson_id, reference_type, title, author, source_url, publication_date, description)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          referenceData.id,
+          referenceData.lesson_id,
+          referenceData.reference_type,
+          referenceData.title,
+          referenceData.author,
+          referenceData.source_url,
+          referenceData.publication_date,
+          referenceData.description
+        ).run();
+
+        return new Response(JSON.stringify({
+          status: 'success',
+          message: 'Reference inserted successfully',
+          id: referenceData.id
+        }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        return new Response(JSON.stringify({
+          status: 'error',
+          message: (error as Error).message
+        }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     // Initialize database schema
     if (url.pathname === '/init-db') {
       try {
